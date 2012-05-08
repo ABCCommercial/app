@@ -8,6 +8,12 @@ class App < Configurable
   config.tubular = "way cool"
   config.awesome = nil
   config.mondo = lambda { |a, b| return a, b }
+  from_yaml(File.join(File.dirname(__FILE__), 'test.yml')) do |hash|
+    config.top_key1 = hash['key1']
+  end
+  from_yaml(File.join(File.dirname(__FILE__), 'test.yml'), "development") do |hash|
+    config.test_key1 = hash['key1']
+  end
 end
 
 class AppTest < ActiveSupport::TestCase
@@ -15,6 +21,11 @@ class AppTest < ActiveSupport::TestCase
     assert_equal "way cool", App.tubular
     assert_equal "way cool", App["tubular"]
     assert_equal "way cool", App[:tubular]
+  end
+
+  test "should parse and yield yaml" do
+    assert_equal "value1", App[:test_key1]
+    assert_equal "topvalue1", App[:top_key1]
   end
 
   test "should return booleans" do

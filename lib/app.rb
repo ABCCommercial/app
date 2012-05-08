@@ -49,6 +49,21 @@ class Configurable
       @logger ||= Logger.new STDERR
     end
 
+    def from_yaml(yaml_file, subkey = nil)
+      if File.exist?(yaml_file)
+        yaml = YAML::load_file(yaml_file)
+        if subkey && yaml.has_key?(subkey)
+          yield(yaml[subkey]) if block_given?
+        elsif !(subkey || yaml.empty?)
+          yield(yaml) if block_given?
+        else
+          puts "#{yaml_file} doesn't include configuration for '#{subkey}'"
+        end
+      else
+        puts "#{yaml_file} doesn't exist"
+      end
+    end
+
     private
 
     def config
